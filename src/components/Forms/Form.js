@@ -250,7 +250,7 @@ function CustomForm(props) {
 const mapStateToProps = (state) => ({
   UserDetailsForm: getFormValues('UserDetailsForm')(state),
   Employee: state.Employee,
-  initialValues: state.Employee.SelectedEmp,
+  initialValues: { ...state.Employee.SelectedEmp, Country: ' United States' },
 });
 
 const mapDispatchToProps = {
