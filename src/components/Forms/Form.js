@@ -1,14 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Field, getFormValues, reduxForm } from 'redux-form';
-import { renderTextField } from '../reduxformCompoents';
+import {
+  renderAutoCompleteField,
+  renderSelectField,
+  renderTextField,
+} from '../reduxformCompoents';
 import GridContainer from '../Grid/GridContainer';
 import GridItem from '../Grid/GridItem';
 import { Button } from '@mui/material';
 import { resetemp, updateemp } from '../../redux/action/EMPAction';
 import uuid from 'react-uuid';
+import { StatesCity } from '../utils';
+const validate = (values, allvalues) => {
+  let errors = {};
+  if (values.email?.length > 0) {
+    if (
+      !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/i.test(
+        values.email
+      )
+    ) {
+      errors['email'] = 'Please Enter Correct Format!';
+    }
+  }
+  if (values.contact_no?.length > 0) {
+    if (values.contact_no?.length !== 10) {
+      errors['contact_no'] = 'Please Enter 10 digit mobile number!';
+    }
+  }
+  return errors;
+};
 function CustomForm(props) {
-  const Fields = [
+  const {
+    UserDetailsForm,
+    updateemp,
+    Employee,
+    handleClose,
+    pristine,
+    submitting,
+    invalid,
+  } = props;
+  const [Fields, setFields] = useState([
     {
       key: 'name',
       name: 'name',
@@ -16,10 +48,13 @@ function CustomForm(props) {
     {
       key: 'age',
       name: 'age',
+      type: 'number',
     },
     {
       key: 'gender',
       name: 'gender',
+      type: 'select',
+      values: ['Male', 'Female', 'other'],
     },
     {
       key: 'email',
@@ -29,6 +64,7 @@ function CustomForm(props) {
     {
       key: 'contact_no',
       name: 'contact no',
+      type: 'number',
     },
     {
       key: 'address_1',
@@ -41,28 +77,97 @@ function CustomForm(props) {
     {
       key: 'Country',
       name: 'Country',
+      type: 'autocomplete',
+      values: ['United States'],
     },
     {
       key: 'State',
       name: 'State',
+      type: 'autocomplete',
+      // values: StatesCity.map((rep) => rep.name),
     },
     {
       key: 'City',
       name: 'City',
+      type: 'autocomplete',
+      // values: getcity(UserDetailsForm.State),
     },
     {
       key: 'Pincode',
       name: 'Pincode',
+      type: 'number',
     },
-  ];
-  const {
-    UserDetailsForm,
-    updateemp,
-    Employee,
-    handleClose,
-    pristine,
-    submitting,
-  } = props;
+  ]);
+  const getcity = (stateName) => {
+    if (stateName) {
+      const StateSelected = StatesCity.filter(
+        (res) => res.name === stateName
+      )[0];
+      const finalNames = StateSelected.cities;
+      return finalNames;
+    }
+  };
+  useEffect(() => {
+    setFields([
+      {
+        key: 'name',
+        name: 'name',
+      },
+      {
+        key: 'age',
+        name: 'age',
+        type: 'number',
+      },
+      {
+        key: 'gender',
+        name: 'gender',
+        type: 'select',
+        values: ['Male', 'Female', 'other'],
+      },
+      {
+        key: 'email',
+        name: 'email',
+      },
+
+      {
+        key: 'contact_no',
+        name: 'contact no',
+        type: 'number',
+      },
+      {
+        key: 'address_1',
+        name: 'address 1',
+      },
+      {
+        key: 'address_2',
+        name: 'address 2',
+      },
+      {
+        key: 'Country',
+        name: 'Country',
+        type: 'autocomplete',
+        values: ['United States'],
+      },
+      {
+        key: 'State',
+        name: 'State',
+        type: 'autocomplete',
+        values: StatesCity.map((rep) => rep.name),
+      },
+      {
+        key: 'City',
+        name: 'City',
+        type: 'autocomplete',
+        values: getcity(UserDetailsForm.State),
+      },
+      {
+        key: 'Pincode',
+        name: 'Pincode',
+        type: 'number',
+      },
+    ]);
+  }, [UserDetailsForm.State]);
+
   const handleSubmit = () => {
     let InitEmp = [...Employee.Employee];
 
@@ -78,23 +183,53 @@ function CustomForm(props) {
   };
   return (
     <GridContainer>
+      <h1>
+        {Object.entries(Employee?.SelectedEmp)?.length > 0 ? 'Edit ' : 'Add '}
+        Employee
+      </h1>
       {Fields.map((rep) => (
         <GridItem md={6}>
-          <Field
-            id={rep.key}
-            fullWidth={true}
-            name={rep.key}
-            label={rep.name}
-            component={renderTextField}
-          />
+          {rep.type === 'select' ? (
+            <Field
+              //  style={{ margin: '10px 0px' }}
+              fullWidth={true}
+              name={rep.name}
+              component={renderSelectField}
+              values={rep.values || []}
+              label={rep.name}
+            />
+          ) : rep.type === 'autocomplete' ? (
+            <Field
+              fullWidth={true}
+              name={rep.key}
+              label={rep.name}
+              component={renderAutoCompleteField}
+              options={rep.values || []}
+            />
+          ) : (
+            <Field
+              id={rep.key}
+              fullWidth={true}
+              name={rep.key}
+              label={rep.name}
+              type={rep.type}
+              component={renderTextField}
+            />
+          )}
         </GridItem>
       ))}
-      <Button disabled={pristine || submitting} onClick={handleSubmit}>
+      <Button
+        disabled={pristine || submitting || invalid}
+        onClick={handleSubmit}
+      >
         {Object.entries(Employee?.SelectedEmp)?.length > 0
           ? 'Update'
           : ' Submit'}
       </Button>
-      <Button disabled={pristine || submitting} onClick={() => props.reset()}>
+      <Button
+        disabled={pristine || submitting || invalid}
+        onClick={() => props.reset()}
+      >
         clear
       </Button>
     </GridContainer>
@@ -118,7 +253,7 @@ export default connect(
 )(
   reduxForm({
     form: 'UserDetailsForm',
-    // validate,
+    validate,
     enableReinitialize: true,
     forceUnregisterOnUnmount: true,
     destroyOnUnmount: false,
