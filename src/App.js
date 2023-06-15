@@ -1,28 +1,39 @@
 import React from 'react';
 import './App.css';
 
+import { connect } from 'react-redux';
 import GridContainer from './components/Grid/GridContainer';
 import GridItem from './components/Grid/GridItem';
 import Header from './components/Header';
 import CustomModal from './components/modal/index';
-import { connect } from 'react-redux';
 
 import List from './components/Cards/list';
 import { resetemp, updateemp } from './redux/action/EMPAction';
 
 function App(props) {
+  const { updateemp, Employee } = props;
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => {
-    props.updateemp('SelectedEmp', {});
+    updateemp('SelectedEmp', {});
     setOpen(true);
   };
   const handleClose = () => {
-    props.updateemp('SelectedEmp', {});
+    updateemp('SelectedEmp', {});
     setOpen(false);
   };
   const handleEdit = (rep) => {
-    props.updateemp('SelectedEmp', rep);
+    updateemp('SelectedEmp', rep);
     setOpen(true);
+  };
+  const handleDelete = (rep) => {
+    let InitEmp = [...Employee.Employee];
+
+    InitEmp.splice(
+      InitEmp.findIndex((x) => x.id === rep.id),
+      1
+    );
+    updateemp('Count', InitEmp.length);
+    updateemp('Employee', InitEmp);
   };
   return (
     <GridContainer>
@@ -37,7 +48,7 @@ function App(props) {
         />
       </GridItem>
       <GridItem>
-        <List handleEdit={handleEdit} />
+        <List handleEdit={handleEdit} handleDelete={handleDelete} />
       </GridItem>
     </GridContainer>
   );

@@ -158,7 +158,7 @@ function CustomForm(props) {
         key: 'City',
         name: 'City',
         type: 'autocomplete',
-        values: getcity(UserDetailsForm.State),
+        values: UserDetailsForm?.State ? getcity(UserDetailsForm?.State) : [],
       },
       {
         key: 'Pincode',
@@ -166,7 +166,7 @@ function CustomForm(props) {
         type: 'number',
       },
     ]);
-  }, [UserDetailsForm.State]);
+  }, [UserDetailsForm?.State]);
 
   const handleSubmit = () => {
     let InitEmp = [...Employee.Employee];
