@@ -183,15 +183,17 @@ function CustomForm(props) {
   };
   return (
     <GridContainer>
-      <h1>
-        {Object.entries(Employee?.SelectedEmp)?.length > 0 ? 'Edit ' : 'Add '}
-        Employee
-      </h1>
+      <GridItem md={12} style={{ textAlign: 'center' }}>
+        <h1>
+          {Object.entries(Employee?.SelectedEmp)?.length > 0 ? 'Edit ' : 'Add '}
+          Employee
+        </h1>
+      </GridItem>
       {Fields.map((rep) => (
         <GridItem md={6}>
           {rep.type === 'select' ? (
             <Field
-              //  style={{ margin: '10px 0px' }}
+              style={{ margin: '10px 0px' }}
               fullWidth={true}
               name={rep.name}
               component={renderSelectField}
@@ -200,6 +202,7 @@ function CustomForm(props) {
             />
           ) : rep.type === 'autocomplete' ? (
             <Field
+              style={{ margin: '10px 0px' }}
               fullWidth={true}
               name={rep.key}
               label={rep.name}
@@ -208,6 +211,7 @@ function CustomForm(props) {
             />
           ) : (
             <Field
+              style={{ margin: '10px 0px' }}
               id={rep.key}
               fullWidth={true}
               name={rep.key}
@@ -218,20 +222,27 @@ function CustomForm(props) {
           )}
         </GridItem>
       ))}
-      <Button
-        disabled={pristine || submitting || invalid}
-        onClick={handleSubmit}
-      >
-        {Object.entries(Employee?.SelectedEmp)?.length > 0
-          ? 'Update'
-          : ' Submit'}
-      </Button>
-      <Button
-        disabled={pristine || submitting || invalid}
-        onClick={() => props.reset()}
-      >
-        clear
-      </Button>
+      <GridItem md={12}>
+        <Button
+          variant='contained'
+          disabled={pristine || submitting || invalid}
+          onClick={handleSubmit}
+          color='primary'
+        >
+          {Object.entries(Employee?.SelectedEmp)?.length > 0
+            ? 'Update'
+            : ' Submit'}
+        </Button>
+        <Button
+          color='warning'
+          style={{ margin: '0px 10px' }}
+          variant='contained'
+          disabled={pristine || submitting}
+          onClick={() => props.reset()}
+        >
+          clear
+        </Button>
+      </GridItem>
     </GridContainer>
   );
 }
